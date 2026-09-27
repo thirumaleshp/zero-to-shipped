@@ -59,9 +59,9 @@ if (-not $existingApp) {
     Write-Host "[OK] Found existing Amplify App ID: $appId" -ForegroundColor Green
 }
 
-# Zip dist directory
-Write-Host "Packaging deployment bundle..." -ForegroundColor Cyan
-Compress-Archive -Path dist\* -DestinationPath dist.zip -Force
+# Package dist directory with standard Unix forward slashes
+Write-Host "Packaging deployment bundle via node zip-dist.js..." -ForegroundColor Cyan
+node zip-dist.js
 
 # Create deployment
 Write-Host "Deploying bundle to Amplify main branch..." -ForegroundColor Cyan
