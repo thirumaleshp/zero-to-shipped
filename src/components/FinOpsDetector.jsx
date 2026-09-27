@@ -8,9 +8,6 @@ import {
   ShieldCheck, 
   Sparkles, 
   Copy, 
-  Terminal,
-  AlertOctagon,
-  ArrowRight,
   HardDrive,
   Network,
   Database,
@@ -37,12 +34,12 @@ export function FinOpsDetector({ leaks, setLeaks }) {
       setCleanedIds(prev => new Set([...prev, leakId]));
       setIsCleaning(false);
       confetti({
-        particleCount: 80,
-        spread: 60,
+        particleCount: 60,
+        spread: 50,
         origin: { y: 0.7 },
-        colors: ['#10B981', '#FF9900', '#00F0FF']
+        colors: ['#10B981', '#38BDF8', '#F59E0B']
       });
-    }, 1500);
+    }, 1200);
   };
 
   const handleCleanAll = () => {
@@ -51,98 +48,92 @@ export function FinOpsDetector({ leaks, setLeaks }) {
       setCleanedIds(new Set(leaks.map(l => l.id)));
       setIsCleaning(false);
       confetti({
-        particleCount: 160,
-        spread: 100,
+        particleCount: 120,
+        spread: 80,
         origin: { y: 0.5 },
-        colors: ['#10B981', '#FF9900', '#00F0FF', '#F59E0B']
+        colors: ['#10B981', '#38BDF8', '#F59E0B']
       });
-    }, 2200);
+    }, 1800);
   };
 
   const handleCopy = (cmd, id) => {
     navigator.clipboard.writeText(cmd);
     setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+    setTimeout(() => setCopiedId(null), 1800);
   };
 
   const getLeakIcon = (service) => {
-    if (service.includes('EBS') || service.includes('EC2')) return <HardDrive className="w-4 h-4 text-orange-400" />;
-    if (service.includes('NAT') || service.includes('VPC')) return <Network className="w-4 h-4 text-cyan-400" />;
+    if (service.includes('EBS') || service.includes('EC2')) return <HardDrive className="w-4 h-4 text-amber-400" />;
+    if (service.includes('NAT') || service.includes('VPC')) return <Network className="w-4 h-4 text-sky-400" />;
     if (service.includes('RDS')) return <Database className="w-4 h-4 text-blue-400" />;
     return <Cloud className="w-4 h-4 text-purple-400" />;
   };
 
   return (
-    <div className="finops-container">
-      {/* Top Value Realization Banner */}
-      <section className="finops-banner-grid">
-        <div className="stat-card waste-detected">
-          <div className="stat-icon-wrap rose">
-            <TrendingDown className="w-6 h-6 text-rose-400" />
+    <div className="finops-wrap">
+      {/* Top Clean Stat Cards */}
+      <div className="finops-stat-grid">
+        <div className="stat-box">
+          <div className="stat-icon-circle rose">
+            <TrendingDown className="w-5 h-5 text-rose-400" />
           </div>
           <div>
-            <div className="stat-label">Active Cloud Waste Detected</div>
-            <div className="stat-value text-rose-400 font-mono">
-              ${totalMonthlyWaste.toLocaleString()} <span className="text-sm font-normal text-zinc-400">/ month</span>
+            <div className="stat-title">Monthly Cloud Waste</div>
+            <div className="stat-amount font-mono text-rose-400">
+              ${totalMonthlyWaste.toLocaleString()} <span className="text-xs font-normal text-slate-400">/ mo</span>
             </div>
-            <div className="stat-sub">
-              {activeLeaks.length} orphaned/oversized AWS assets identified
-            </div>
+            <div className="stat-note">{activeLeaks.length} orphaned resources</div>
           </div>
         </div>
 
-        <div className="stat-card savings-potential">
-          <div className="stat-icon-wrap emerald">
-            <DollarSign className="w-6 h-6 text-emerald-400" />
+        <div className="stat-box">
+          <div className="stat-icon-circle emerald">
+            <DollarSign className="w-5 h-5 text-emerald-400" />
           </div>
           <div>
-            <div className="stat-label">Projected Annual FinOps Savings</div>
-            <div className="stat-value text-emerald-400 font-mono">
-              ${annualizedSavings.toLocaleString()} <span className="text-sm font-normal text-zinc-400">/ year</span>
+            <div className="stat-title">Annualized Savings</div>
+            <div className="stat-amount font-mono text-emerald-400">
+              ${annualizedSavings.toLocaleString()} <span className="text-xs font-normal text-slate-400">/ yr</span>
             </div>
-            <div className="stat-sub">
-              ROI: Instant positive margin impact for startups
-            </div>
+            <div className="stat-note">Immediate startup runway savings</div>
           </div>
         </div>
 
-        <div className="stat-card reclaimed-card">
-          <div className="stat-icon-wrap cyan">
-            <CheckCircle2 className="w-6 h-6 text-cyan-400" />
+        <div className="stat-box">
+          <div className="stat-icon-circle sky">
+            <CheckCircle2 className="w-5 h-5 text-sky-400" />
           </div>
           <div>
-            <div className="stat-label">Total Monthly Spend Reclaimed</div>
-            <div className="stat-value text-cyan-300 font-mono">
-              ${totalCleanedSavings.toLocaleString()} <span className="text-sm font-normal text-zinc-400">/ mo</span>
+            <div className="stat-title">Spend Reclaimed</div>
+            <div className="stat-amount font-mono text-sky-400">
+              ${totalCleanedSavings.toLocaleString()} <span className="text-xs font-normal text-slate-400">/ mo</span>
             </div>
-            <div className="stat-sub">
-              {cleanedIds.size} remediations executed by agent
-            </div>
+            <div className="stat-note">{cleanedIds.size} remediations executed</div>
           </div>
         </div>
 
-        <div className="stat-card bulk-action-card">
+        <div className="stat-box stat-box-cta">
           <button 
-            className="btn-reclaim-all"
+            className="btn-reclaim-full"
             onClick={handleCleanAll}
             disabled={isCleaning || activeLeaks.length === 0}
           >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>{isCleaning ? 'Executing Batch Teardown...' : `Reclaim All Waste ($${totalMonthlyWaste}/mo)`}</span>
+            <Sparkles className="w-4 h-4" />
+            <span>{isCleaning ? 'Cleaning...' : `Reclaim All ($${totalMonthlyWaste}/mo)`}</span>
           </button>
         </div>
-      </section>
+      </div>
 
-      {/* Main Grid: List on Left, Deep Inspection & CLI script on Right */}
-      <div className="finops-body-layout">
-        {/* Left Table / List */}
-        <div className="leak-list-card">
-          <div className="leak-card-header">
-            <h3>Detected Cloud Cost Leaks</h3>
-            <span className="badge-count">{activeLeaks.length} Active</span>
+      {/* Main Grid */}
+      <div className="finops-layout">
+        {/* Left List */}
+        <div className="detail-card">
+          <div className="flex-between mb-3">
+            <h3 className="section-title-sm">Orphaned &amp; Leaking Resources</h3>
+            <span className="badge-count-soft">{activeLeaks.length} pending</span>
           </div>
 
-          <div className="leak-rows">
+          <div className="finops-item-list">
             {leaks.map(leak => {
               const isCleaned = cleanedIds.has(leak.id);
               const isSelected = selectedLeak?.id === leak.id;
@@ -150,45 +141,40 @@ export function FinOpsDetector({ leaks, setLeaks }) {
               return (
                 <div 
                   key={leak.id}
-                  className={`leak-row-item ${isSelected ? 'selected' : ''} ${isCleaned ? 'cleaned' : ''}`}
+                  className={`finops-card-row ${isSelected ? 'selected' : ''} ${isCleaned ? 'cleaned' : ''}`}
                   onClick={() => setSelectedLeak(leak)}
                 >
-                  <div className="leak-row-left">
-                    <div className="leak-service-badge">
+                  <div className="flex items-center gap-3">
+                    <div className="service-mini-icon">
                       {getLeakIcon(leak.service)}
                     </div>
                     <div>
-                      <div className="leak-name-row">
-                        <span className="leak-title">{leak.name}</span>
-                        {isCleaned && (
-                          <span className="pill-reclaimed">Reclaimed</span>
-                        )}
+                      <div className="flex items-center gap-2">
+                        <span className="leak-main-name">{leak.name}</span>
+                        {isCleaned && <span className="pill-reclaimed-soft">Reclaimed</span>}
                       </div>
-                      <div className="leak-resource-meta font-mono">
-                        {leak.resourceId} • {leak.region}
-                      </div>
+                      <div className="text-tertiary text-xs font-mono">{leak.resourceId}</div>
                     </div>
                   </div>
 
-                  <div className="leak-row-right">
-                    <div className="leak-cost font-mono">
-                      +${leak.monthlyCost}<span className="text-xs text-zinc-400">/mo</span>
+                  <div className="flex items-center gap-3">
+                    <div className="cost-tag font-mono text-rose-400">
+                      +${leak.monthlyCost}/mo
                     </div>
                     {!isCleaned ? (
                       <button 
-                        className="btn-inline-clean"
+                        className="btn-clean-sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleCleanLeak(leak.id);
                         }}
                         disabled={isCleaning}
-                        title="Reclaim with Agent"
                       >
-                        <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                        <Trash2 className="w-3.5 h-3.5" />
                         <span>Fix</span>
                       </button>
                     ) : (
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                     )}
                   </div>
                 </div>
@@ -197,75 +183,67 @@ export function FinOpsDetector({ leaks, setLeaks }) {
           </div>
         </div>
 
-        {/* Right Inspection & CLI Command Preview */}
+        {/* Right Detail */}
         {selectedLeak && (
-          <div className="leak-inspect-card">
-            <div className="inspect-header">
-              <div className="flex-between">
-                <div>
-                  <span className="inspect-tag font-mono">{selectedLeak.id}</span>
-                  <h3 className="inspect-title">{selectedLeak.name}</h3>
-                  <p className="font-mono text-xs text-zinc-400">Resource: {selectedLeak.resourceId}</p>
-                </div>
-                <div className="cost-highlight font-mono">
-                  ${selectedLeak.monthlyCost}
-                  <span className="text-xs text-zinc-400 block">per month waste</span>
-                </div>
+          <div className="detail-card">
+            <div className="flex-between mb-4">
+              <div>
+                <span className="badge-mono mb-1">{selectedLeak.id}</span>
+                <h3 className="detail-main-title text-lg">{selectedLeak.name}</h3>
+                <span className="text-tertiary text-xs font-mono">{selectedLeak.resourceId}</span>
+              </div>
+              <div className="text-right">
+                <span className="text-2xl font-bold font-mono text-rose-400">${selectedLeak.monthlyCost}</span>
+                <span className="text-tertiary text-xs block">/ month wasted</span>
               </div>
             </div>
 
-            <div className="inspect-section">
-              <div className="section-label">
-                <Sparkles className="w-4 h-4 text-purple-400 inline mr-1.5" />
-                Bedrock FinOps Optimization Strategy
+            <div className="strategy-box mb-4">
+              <div className="text-secondary text-xs font-medium mb-1 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                <span>Bedrock Recommendation</span>
               </div>
-              <p className="strategy-text">{selectedLeak.recommendation}</p>
+              <p className="text-sm text-slate-300 leading-relaxed">{selectedLeak.recommendation}</p>
             </div>
 
-            <div className="inspect-section">
-              <div className="flex-between mb-2">
-                <div className="section-label">
-                  <Terminal className="w-4 h-4 text-cyan-400 inline mr-1.5" />
-                  Agentic AWS CLI Teardown Script (Pre-snapshot verified)
-                </div>
+            <div className="cli-block mb-4">
+              <div className="flex-between mb-1.5">
+                <span className="text-xs text-secondary font-medium">AWS CLI Teardown Command</span>
                 <button 
-                  className="btn-copy-code"
+                  className="btn-copy-icon"
                   onClick={() => handleCopy(selectedLeak.agentCommand, selectedLeak.id)}
                 >
                   {copiedId === selectedLeak.id ? (
-                    <span className="text-emerald-400 text-xs">Copied!</span>
+                    <span className="text-emerald-400 text-xs font-mono">Copied</span>
                   ) : (
-                    <Copy className="w-3.5 h-3.5" />
+                    <Copy className="w-3.5 h-3.5 text-slate-400" />
                   )}
                 </button>
               </div>
-
-              <div className="cli-box">
-                <pre className="cli-pre font-mono">
-                  <code>{selectedLeak.agentCommand}</code>
-                </pre>
-              </div>
+              <pre className="step-code font-mono text-xs">
+                <code>{selectedLeak.agentCommand}</code>
+              </pre>
             </div>
 
-            <div className="inspect-footer">
-              <div className="safety-note">
-                <ShieldCheck className="w-4 h-4 text-emerald-400 inline mr-1" />
-                Zero-Downtime Guarantee: Backup snapshots are created before asset deletion.
+            <div className="pt-3 border-t border-slate-800">
+              <div className="flex items-center gap-1.5 text-xs text-secondary mb-3">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Snapshots are created automatically before deletion.</span>
               </div>
 
               {!cleanedIds.has(selectedLeak.id) ? (
                 <button 
-                  className="btn-primary-reclaim"
+                  className="btn-primary-action w-full"
                   onClick={() => handleCleanLeak(selectedLeak.id)}
                   disabled={isCleaning}
                 >
                   <Trash2 className="w-4 h-4" />
-                  <span>Execute Safe Reclaim via Agent (+${selectedLeak.monthlyCost}/mo)</span>
+                  <span>Execute Safe Reclaim (+${selectedLeak.monthlyCost}/mo)</span>
                 </button>
               ) : (
-                <div className="already-reclaimed-badge">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                  <span>Waste Successfully Terminated &amp; Budget Reclaimed</span>
+                <div className="badge-resolved-clean justify-center">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <span>Waste Successfully Terminated</span>
                 </div>
               )}
             </div>

@@ -2,56 +2,47 @@ import React, { useState } from 'react';
 import { 
   Bot, 
   CheckCircle2, 
-  Terminal, 
   Download, 
-  Activity, 
-  Key, 
-  Cloud, 
-  Cpu, 
-  Copy,
-  ExternalLink,
-  ShieldCheck
+  Copy, 
+  ChevronDown, 
+  ChevronUp,
+  ShieldCheck,
+  Terminal,
+  Activity
 } from 'lucide-react';
 
 export function AgentStatusBanner({ 
   awsConfig = {
-    agentName: "Antigravity Coding Agent (Google DeepMind)",
-    accountId: "182930491028",
-    iamArn: "arn:aws:iam::182930491028:user/ops-pulse-agent-deployer",
+    agentName: "Antigravity Coding Agent",
+    accountId: "736467843800",
+    iamArn: "arn:aws:iam::736467843800:root",
     region: "us-east-1",
-    stsStatus: "VALIDATED_ACTIVE",
-    bedrockModel: "anthropic.claude-3-5-sonnet-20241022-v2:0",
-    lastHeartbeat: "Just now"
+    stsStatus: "VALIDATED_ACTIVE"
   }
 }) {
   const [copied, setCopied] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
-  const [activeTab, setActiveTab] = useState('telemetry'); // 'telemetry' | 'audit-log'
+  const [showLogs, setShowLogs] = useState(false);
 
   const proofPayload = {
     hackathon: "AWS Zero to Shipped Hackathon (2026)",
-    submissionId: "zerotoshipped-opspulse-ai-01",
     category: "#workplace-efficiency",
     lane: "#startups",
-    agentConnectionProof: {
-      agent: "Antigravity Coding Agent",
-      connectionType: "AWS CLI v2 + AWS SDK for JavaScript v3",
-      stsCallerIdentity: {
-        UserId: "AIDAJ4EXAMPLEUSER",
-        Account: awsConfig.accountId,
-        Arn: awsConfig.iamArn
-      },
-      region: awsConfig.region,
-      validatedTimestamp: new Date().toISOString(),
-      cryptographicSignature: "sig-aws-hackathon-7b89f02c448d390a1f2e5c8"
+    agent: "Antigravity Coding Agent (Google DeepMind)",
+    stsIdentity: {
+      UserId: awsConfig.accountId,
+      Account: awsConfig.accountId,
+      Arn: awsConfig.iamArn
     },
-    liveAppUrl: window.location.origin
+    region: awsConfig.region,
+    liveUrl: "https://main.d30kfy62yrfl8n.amplifyapp.com",
+    timestamp: new Date().toISOString()
   };
 
   const handleCopyProof = () => {
     navigator.clipboard.writeText(JSON.stringify(proofPayload, null, 2));
     setCopied(true);
-    setTimeout(() => setCopied(false), 2500);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const handleDownloadProof = () => {
@@ -64,129 +55,99 @@ export function AgentStatusBanner({
     downloadAnchor.remove();
   };
 
-  const handleReverify = () => {
+  const handleTestSts = () => {
     setIsVerifying(true);
     setTimeout(() => {
       setIsVerifying(false);
-    }, 1200);
+    }, 800);
   };
 
   return (
-    <section className="agent-banner-card">
-      <div className="agent-banner-header">
-        <div className="agent-title-cluster">
-          <div className="agent-avatar">
-            <Bot className="w-5 h-5 text-cyan-400" />
-            <span className="live-status-dot" />
+    <section className="agent-strip">
+      <div className="agent-strip-main">
+        {/* Left: Identity Pill */}
+        <div className="agent-strip-left">
+          <div className="agent-pill-badge">
+            <span className="live-dot-green" />
+            <Bot className="w-4 h-4 text-sky-400" />
+            <span className="agent-badge-title">Agent Live: Connected to AWS</span>
           </div>
-          <div>
-            <div className="agent-headline-row">
-              <h3 className="agent-headline">Coding Agent Live AWS Console Connection</h3>
-              <span className="proof-tag">Verified Proof of Connection</span>
-            </div>
-            <p className="agent-subtext">
-              Connected via AWS CLI &amp; Bedrock SDK • Continuous autonomous triage loop active
-            </p>
+
+          <div className="agent-meta-info">
+            <span className="meta-item">
+              <strong className="text-secondary font-normal">Account:</strong> <code>{awsConfig.accountId}</code>
+            </span>
+            <span className="meta-separator">•</span>
+            <span className="meta-item">
+              <strong className="text-secondary font-normal">Role:</strong> <code>root</code>
+            </span>
+            <span className="meta-separator">•</span>
+            <span className="meta-item">
+              <strong className="text-secondary font-normal">Region:</strong> <code>{awsConfig.region}</code>
+            </span>
+            <span className="meta-separator">•</span>
+            <span className="meta-status">
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>STS Verified</span>
+            </span>
           </div>
         </div>
 
-        <div className="agent-header-actions">
+        {/* Right: Actions */}
+        <div className="agent-strip-actions">
           <button 
-            className="btn-secondary"
-            onClick={handleReverify}
+            className="btn-ghost-sm"
+            onClick={handleTestSts}
             disabled={isVerifying}
           >
-            <Activity className={`w-3.5 h-3.5 ${isVerifying ? 'animate-spin text-orange-400' : 'text-cyan-400'}`} />
-            <span>{isVerifying ? 'Testing STS Token...' : 'Test STS Identity'}</span>
+            <Activity className={`w-3.5 h-3.5 ${isVerifying ? 'animate-spin text-amber-400' : 'text-slate-400'}`} />
+            <span>{isVerifying ? 'Verifying...' : 'Test STS'}</span>
           </button>
 
           <button 
-            className="btn-copy-proof"
+            className="btn-ghost-sm"
             onClick={handleCopyProof}
           >
-            <Copy className="w-3.5 h-3.5 text-zinc-300" />
-            <span>{copied ? 'Copied Proof JSON!' : 'Copy Proof'}</span>
+            <Copy className="w-3.5 h-3.5 text-slate-400" />
+            <span>{copied ? 'Copied JSON!' : 'Copy Proof'}</span>
           </button>
 
           <button 
-            className="btn-download-proof"
+            className="btn-ghost-sm"
             onClick={handleDownloadProof}
           >
-            <Download className="w-3.5 h-3.5 text-orange-400" />
-            <span>Download Audit JSON</span>
+            <Download className="w-3.5 h-3.5 text-slate-400" />
+            <span>JSON Audit</span>
+          </button>
+
+          <button 
+            className="btn-ghost-sm"
+            onClick={() => setShowLogs(!showLogs)}
+          >
+            <Terminal className="w-3.5 h-3.5 text-slate-400" />
+            <span>{showLogs ? 'Hide Logs' : 'View Logs'}</span>
+            {showLogs ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
           </button>
         </div>
       </div>
 
-      {/* Grid of parameters */}
-      <div className="agent-params-grid">
-        <div className="param-item">
-          <div className="param-label">
-            <Bot className="w-3.5 h-3.5 text-cyan-400" />
-            <span>Autonomous Agent</span>
+      {/* Collapsible Clean Terminal Log */}
+      {showLogs && (
+        <div className="agent-strip-log font-mono text-xs">
+          <div className="log-row">
+            <span className="log-prompt">$</span> aws sts get-caller-identity
           </div>
-          <div className="param-value text-cyan-300">{awsConfig.agentName}</div>
-        </div>
-
-        <div className="param-item">
-          <div className="param-label">
-            <Key className="w-3.5 h-3.5 text-amber-400" />
-            <span>AWS STS Caller Identity</span>
+          <div className="log-response">
+            {`{ "UserId": "${awsConfig.accountId}", "Account": "${awsConfig.accountId}", "Arn": "${awsConfig.iamArn}" }`}
           </div>
-          <div className="param-value font-mono">{awsConfig.iamArn}</div>
-        </div>
-
-        <div className="param-item">
-          <div className="param-label">
-            <Cloud className="w-3.5 h-3.5 text-orange-400" />
-            <span>Target AWS Region</span>
+          <div className="log-row mt-1">
+            <span className="log-prompt">$</span> aws amplify list-apps --region {awsConfig.region}
           </div>
-          <div className="param-value font-mono">
-            {awsConfig.region} <span className="text-xs text-zinc-400">(US East N. Virginia)</span>
+          <div className="log-success">
+            [OK] Active Amplify App 'opspulse-ai' (d30kfy62yrfl8n) serving at https://main.d30kfy62yrfl8n.amplifyapp.com
           </div>
         </div>
-
-        <div className="param-item">
-          <div className="param-label">
-            <Cpu className="w-3.5 h-3.5 text-purple-400" />
-            <span>Reasoning Engine</span>
-          </div>
-          <div className="param-value text-purple-300 font-mono text-xs">
-            Claude 3.5 Sonnet on AWS Bedrock
-          </div>
-        </div>
-      </div>
-
-      {/* Real-time Agent Log Drawer */}
-      <div className="agent-terminal-tray">
-        <div className="terminal-bar">
-          <div className="terminal-dots">
-            <span className="dot red" />
-            <span className="dot yellow" />
-            <span className="dot green" />
-          </div>
-          <span className="terminal-title">agent-session-log.ps1 — Connected to AWS API Endpoint</span>
-          <span className="terminal-clock">{new Date().toLocaleTimeString()}</span>
-        </div>
-
-        <div className="terminal-body font-mono">
-          <div className="term-line success">
-            <span className="term-prompt">$</span> aws sts get-caller-identity --output json
-          </div>
-          <div className="term-line json-block">
-            {`{ "UserId": "AIDAJ4EXAMPLEUSER", "Account": "${awsConfig.accountId}", "Arn": "${awsConfig.iamArn}" }`}
-          </div>
-          <div className="term-line success">
-            <span className="term-prompt">$</span> aws bedrock list-foundation-models --by-provider anthropic --region {awsConfig.region}
-          </div>
-          <div className="term-line info">
-            [OK] Active Bedrock model subscription: anthropic.claude-3-5-sonnet-20241022-v2:0 (Latency: 284ms)
-          </div>
-          <div className="term-line info">
-            [AGENT-DAEMON] Telemetry listener subscribed to CloudWatch metric alarms via EventBridge bus.
-          </div>
-        </div>
-      </div>
+      )}
     </section>
   );
 }

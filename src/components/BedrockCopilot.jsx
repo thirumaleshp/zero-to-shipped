@@ -2,15 +2,10 @@ import React, { useState } from 'react';
 import { 
   Sparkles, 
   Send, 
-  Cpu, 
-  Terminal, 
   Bot, 
   User, 
   Copy, 
-  Check, 
-  Zap, 
-  ArrowRight,
-  ShieldAlert
+  Zap
 } from 'lucide-react';
 import { COPILOT_PRESETS } from '../data/mockData';
 
@@ -19,17 +14,17 @@ export function BedrockCopilot() {
     {
       id: 'welcome',
       role: 'assistant',
-      content: `### 👋 Welcome to OpsPulse Bedrock Copilot
+      content: `### 👋 Bedrock Cloud SRE Copilot
 
-I am your autonomous SRE & FinOps intelligence engine powered by **AWS Bedrock (Claude 3.5 Sonnet)**.
+I am your infrastructure intelligence assistant powered by **AWS Bedrock (Claude 3.5 Sonnet)**.
 
-I have direct, continuous context of your AWS infrastructure, CloudWatch telemetry, and Cost Explorer anomalies. 
+I have live context of your AWS account (\`736467843800\`), CloudWatch alarms, and cost optimization opportunities.
 
-**What would you like me to analyze?**
-- ⚡ Run root cause diagnosis on active CloudWatch alarms
-- 💰 Audit unattached EBS volumes or idle NAT gateways
+**Suggested Queries:**
+- ⚡ Diagnose root cause of active RDS connection spikes
+- 💰 Audit unattached EBS volumes and show potential savings
 - 🛡️ Inspect IAM execution roles for least-privilege security
-- 🚀 Generate AWS CLI or CloudFormation remediation templates`
+- 🚀 Generate AWS CLI or CloudFormation mitigation commands`
     }
   ]);
 
@@ -43,7 +38,6 @@ I have direct, continuous context of your AWS infrastructure, CloudWatch telemet
     const userText = textToSend;
     setInput('');
 
-    // Append user message
     const newMessages = [
       ...messages,
       { id: Date.now().toString(), role: 'user', content: userText }
@@ -51,7 +45,6 @@ I have direct, continuous context of your AWS infrastructure, CloudWatch telemet
     setMessages(newMessages);
     setIsGenerating(true);
 
-    // Look for preset match or generate dynamic intelligent response
     const matchedPreset = COPILOT_PRESETS.find(p => 
       p.prompt.toLowerCase() === userText.toLowerCase() ||
       userText.toLowerCase().includes(p.label.toLowerCase())
@@ -62,24 +55,24 @@ I have direct, continuous context of your AWS infrastructure, CloudWatch telemet
       if (matchedPreset) {
         responseContent = matchedPreset.response;
       } else {
-        responseContent = `### 🤖 AWS Bedrock Autonomous Analysis
+        responseContent = `### 🤖 AWS Bedrock Analysis
 
 Query: *"${userText}"*
 
 **Analysis Summary:**
-Based on the live telemetry from region \`us-east-1\`, OpsPulse Agent evaluated the infrastructure configuration against AWS Well-Architected Framework best practices.
+OpsPulse evaluated your target infrastructure configuration against AWS Well-Architected Framework best practices.
 
-**Actionable AWS CLI Command:**
+**Recommended AWS CLI Command:**
 \`\`\`bash
-# Generated for AWS Account: 1829-3049-1028
+# Account: 736467843800 (us-east-1)
 aws cloudwatch describe-alarm-history \\
   --alarm-name "HighCPUUtilization" \\
   --start-date $(date -u -v-1d +%Y-%m-%dT%H:%M:%SZ) \\
-  --max-items 10
+  --max-items 5
 
 aws sts get-caller-identity
 \`\`\`
-*Telemetry verified healthy. No critical security exposure detected in active security groups.*`;
+*Telemetry healthy. No critical security exposure detected.*`;
       }
 
       setMessages(prev => [
@@ -87,7 +80,7 @@ aws sts get-caller-identity
         { id: (Date.now() + 1).toString(), role: 'assistant', content: responseContent }
       ]);
       setIsGenerating(false);
-    }, 1200);
+    }, 1000);
   };
 
   const handlePresetClick = (preset) => {
@@ -97,93 +90,81 @@ aws sts get-caller-identity
   const handleCopy = (text, idx) => {
     navigator.clipboard.writeText(text);
     setCopiedIndex(idx);
-    setTimeout(() => setCopiedIndex(null), 2000);
+    setTimeout(() => setCopiedIndex(null), 1800);
   };
 
   return (
-    <div className="copilot-container">
-      {/* Top Banner with Model Info */}
-      <div className="copilot-header">
-        <div className="flex-between">
-          <div className="model-brand">
-            <div className="sparkle-circle">
-              <Sparkles className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <h3 className="copilot-title">AWS Bedrock DevOps Copilot</h3>
-              <p className="copilot-subtitle">Model: <code className="font-mono text-purple-300">anthropic.claude-3-5-sonnet-20241022-v2:0</code></p>
-            </div>
+    <div className="copilot-box">
+      {/* Top Bar */}
+      <div className="copilot-top-bar">
+        <div className="flex items-center gap-2.5">
+          <div className="sparkle-soft-circle">
+            <Sparkles className="w-4 h-4 text-purple-400" />
           </div>
-
-          <div className="telemetry-chip font-mono text-xs">
-            Latency: 284ms • Tokens/sec: 84 • Region: us-east-1
+          <div>
+            <h3 className="section-title-sm">Bedrock SRE Copilot</h3>
+            <span className="text-tertiary text-xs">Model: <code className="text-purple-300">Claude 3.5 Sonnet</code></span>
           </div>
         </div>
 
-        {/* Preset quick prompt chips */}
-        <div className="copilot-presets">
-          <span className="presets-label">Quick Prompts:</span>
+        {/* Quick prompt pills */}
+        <div className="quick-prompt-chips">
           {COPILOT_PRESETS.map((preset, i) => (
             <button 
               key={i} 
-              className="preset-chip"
+              className="chip-prompt"
               onClick={() => handlePresetClick(preset)}
               disabled={isGenerating}
             >
-              <Zap className="w-3 h-3 text-orange-400 inline mr-1" />
+              <Zap className="w-3 h-3 text-amber-400 inline mr-1" />
               <span>{preset.label}</span>
             </button>
           ))}
         </div>
       </div>
 
-      {/* Chat Messages Log */}
-      <div className="copilot-chat-window">
+      {/* Messages Scroll Area */}
+      <div className="copilot-msg-stream">
         {messages.map((msg, idx) => (
-          <div key={msg.id} className={`chat-bubble-row ${msg.role}`}>
-            <div className={`chat-avatar ${msg.role}`}>
-              {msg.role === 'assistant' ? (
-                <Bot className="w-4 h-4 text-purple-400" />
-              ) : (
-                <User className="w-4 h-4 text-cyan-300" />
-              )}
+          <div key={msg.id} className={`chat-row ${msg.role}`}>
+            <div className={`chat-avatar-mini ${msg.role}`}>
+              {msg.role === 'assistant' ? <Bot className="w-4 h-4 text-purple-400" /> : <User className="w-4 h-4 text-sky-300" />}
             </div>
 
-            <div className={`chat-bubble ${msg.role}`}>
-              <div className="chat-markdown">
+            <div className={`chat-card-bubble ${msg.role}`}>
+              <div className="chat-parsed-text">
                 {msg.content.split('\n').map((line, lIdx) => {
                   if (line.startsWith('### ')) {
-                    return <h4 key={lIdx} className="chat-h4">{line.replace('### ', '')}</h4>;
+                    return <h4 key={lIdx} className="chat-heading-4">{line.replace('### ', '')}</h4>;
                   }
                   if (line.startsWith('```')) {
-                    return null; // Handle code blocks below
+                    return null;
                   }
                   if (line.startsWith('- ')) {
-                    return <li key={lIdx} className="chat-li">{line.replace('- ', '')}</li>;
+                    return <li key={lIdx} className="chat-bullet">{line.replace('- ', '')}</li>;
                   }
                   if (line.trim().length === 0) {
-                    return <div key={lIdx} className="h-2" />;
+                    return <div key={lIdx} className="h-1.5" />;
                   }
-                  return <p key={lIdx} className="chat-p">{line}</p>;
+                  return <p key={lIdx} className="chat-line">{line}</p>;
                 })}
 
-                {/* Detect bash code block */}
                 {msg.content.includes('```') && (
-                  <div className="chat-code-block font-mono">
-                    <div className="code-header">
-                      <span>AWS CLI / BASH</span>
+                  <div className="clean-code-box font-mono">
+                    <div className="code-box-header">
+                      <span>AWS CLI</span>
                       <button 
-                        className="btn-copy-code"
+                        className="btn-copy-icon"
                         onClick={() => handleCopy(msg.content, idx)}
                       >
                         {copiedIndex === idx ? (
                           <span className="text-emerald-400 text-xs">Copied</span>
                         ) : (
-                          <Copy className="w-3.5 h-3.5" />
+                          <Copy className="w-3.5 h-3.5 text-slate-400" />
                         )}
                       </button>
                     </div>
-                    <pre>
+                    <pre className="code-box-body">
                       <code>
                         {msg.content.split('```')[1]?.replace(/^(bash|json)\n/, '') || ''}
                       </code>
@@ -196,25 +177,21 @@ aws sts get-caller-identity
         ))}
 
         {isGenerating && (
-          <div className="chat-bubble-row assistant">
-            <div className="chat-avatar assistant">
+          <div className="chat-row assistant">
+            <div className="chat-avatar-mini assistant">
               <Bot className="w-4 h-4 text-purple-400 animate-pulse" />
             </div>
-            <div className="chat-bubble assistant typing">
-              <div className="typing-dots">
-                <span /><span /><span />
-              </div>
-              <span className="typing-text font-mono text-xs text-zinc-400">
-                Querying AWS Bedrock &amp; CloudWatch metrics...
-              </span>
+            <div className="chat-card-bubble assistant flex items-center gap-2">
+              <span className="typing-dot" />
+              <span className="text-xs text-slate-400 font-mono">Bedrock reasoning in progress...</span>
             </div>
           </div>
         )}
       </div>
 
-      {/* Query Input Bar */}
+      {/* Input Field */}
       <form 
-        className="copilot-input-bar"
+        className="copilot-input-row"
         onSubmit={(e) => {
           e.preventDefault();
           handleSend();
@@ -222,15 +199,15 @@ aws sts get-caller-identity
       >
         <input 
           type="text"
-          className="copilot-input"
-          placeholder="Ask Bedrock to diagnose an alarm, generate an AWS CLI script, or optimize costs..."
+          className="copilot-text-input"
+          placeholder="Ask Bedrock to diagnose an alarm or generate an AWS remediation script..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           disabled={isGenerating}
         />
         <button 
           type="submit"
-          className="btn-send"
+          className="btn-send-clean"
           disabled={!input.trim() || isGenerating}
         >
           <Send className="w-4 h-4 text-white" />

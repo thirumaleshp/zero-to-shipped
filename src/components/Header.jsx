@@ -4,11 +4,9 @@ import {
   ShieldCheck, 
   Terminal, 
   Sparkles, 
-  ExternalLink, 
   Layers, 
   Award,
-  AlertTriangle,
-  RefreshCw
+  AlertTriangle
 } from 'lucide-react';
 
 export function Header({ 
@@ -20,102 +18,93 @@ export function Header({
   awsConnected
 }) {
   return (
-    <header className="header-container">
-      <div className="header-top">
-        {/* Brand identity */}
-        <div className="brand-group">
-          <div className="brand-logo">
-            <Zap className="brand-icon" />
-            <div className="logo-glow" />
+    <header className="header-root">
+      <div className="header-inner">
+        {/* Left: Brand Identity */}
+        <div className="brand-wrap">
+          <div className="brand-mark">
+            <Zap className="brand-svg" />
           </div>
           <div>
-            <div className="brand-title-row">
-              <h1 className="brand-title">OpsPulse<span className="brand-highlight">.ai</span></h1>
-              <span className="version-tag">v2.4 Live</span>
+            <div className="brand-headline">
+              <span className="brand-name">OpsPulse</span>
+              <span className="brand-dot-ai">.ai</span>
             </div>
-            <p className="brand-subtitle">Autonomous Cloud Incident Triage & FinOps Copilot</p>
+            <p className="brand-desc">Cloud Incident Triage &amp; FinOps</p>
           </div>
         </div>
 
-        {/* Hackathon metadata badges */}
-        <div className="hackathon-badges">
-          <div className="badge-pill category">
-            <span className="badge-dot category-dot" />
-            <span className="badge-label">Category:</span>
-            <strong>#workplace-efficiency</strong>
-          </div>
-          <div className="badge-pill lane">
-            <span className="badge-dot lane-dot" />
-            <span className="badge-label">Lane:</span>
-            <strong>#startups</strong>
-          </div>
-          <div className={`badge-pill aws-status ${awsConnected ? 'connected' : 'waiting'}`}>
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span>{awsConnected ? 'AWS Connected (STS Validated)' : 'AWS Agent Ready'}</span>
+        {/* Center: Soft Minimal Category Chips */}
+        <div className="header-chips">
+          <span className="chip-pill chip-orange">#workplace-efficiency</span>
+          <span className="chip-pill chip-purple">#startups</span>
+          <div className="chip-pill chip-emerald">
+            <span className="live-dot" />
+            <span>AWS Connected</span>
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="header-actions">
+        {/* Right: Actions */}
+        <div className="header-right">
           <button 
-            className="btn-simulate"
+            className="btn-soft-amber"
             onClick={onSimulateSpike}
-            title="Inject synthetic CloudWatch telemetry spike"
+            title="Inject simulated CloudWatch alarm"
           >
-            <AlertTriangle className="w-4 h-4 text-amber-400" />
+            <AlertTriangle className="w-3.5 h-3.5" />
             <span>Simulate Alarm</span>
           </button>
 
           <button 
-            className="btn-hackathon-dossier"
+            className="btn-soft-primary"
             onClick={onOpenSubmissionModal}
           >
-            <Award className="w-4 h-4 text-orange-400" />
-            <span>Judge Dossier & Ship Proof</span>
+            <Award className="w-3.5 h-3.5" />
+            <span>Hackathon Dossier</span>
           </button>
         </div>
       </div>
 
-      {/* Navigation tabs */}
-      <nav className="header-nav">
-        <div className="nav-tabs">
+      {/* Navigation Bar - Soft Pill Segmented Control */}
+      <div className="header-nav-wrap">
+        <nav className="nav-segmented">
           <button 
-            className={`nav-tab ${activeTab === 'incidents' ? 'active' : ''}`}
+            className={`nav-seg-item ${activeTab === 'incidents' ? 'active' : ''}`}
             onClick={() => setActiveTab('incidents')}
           >
             <Zap className="w-4 h-4" />
-            <span>Incident Triage Hub</span>
+            <span>Incident Triage</span>
             {activeIncidentsCount > 0 && (
-              <span className="tab-counter">{activeIncidentsCount}</span>
+              <span className="badge-count-soft">{activeIncidentsCount}</span>
             )}
           </button>
 
           <button 
-            className={`nav-tab ${activeTab === 'finops' ? 'active' : ''}`}
+            className={`nav-seg-item ${activeTab === 'finops' ? 'active' : ''}`}
             onClick={() => setActiveTab('finops')}
           >
             <Layers className="w-4 h-4" />
-            <span>FinOps Waste Detector</span>
-            <span className="tab-pill-savings">$1,213/mo</span>
+            <span>FinOps Waste</span>
+            <span className="badge-savings-soft">$1,213/mo</span>
           </button>
 
           <button 
-            className={`nav-tab ${activeTab === 'copilot' ? 'active' : ''}`}
+            className={`nav-seg-item ${activeTab === 'copilot' ? 'active' : ''}`}
             onClick={() => setActiveTab('copilot')}
           >
             <Sparkles className="w-4 h-4 text-purple-400" />
-            <span>Bedrock SRE Copilot</span>
+            <span>Bedrock Copilot</span>
           </button>
 
           <button 
-            className={`nav-tab ${activeTab === 'agent' ? 'active' : ''}`}
+            className={`nav-seg-item ${activeTab === 'agent' ? 'active' : ''}`}
             onClick={() => setActiveTab('agent')}
           >
-            <Terminal className="w-4 h-4 text-cyan-400" />
-            <span>Agent-to-AWS Live Terminal</span>
+            <Terminal className="w-4 h-4 text-sky-400" />
+            <span>AWS Agent Proof</span>
           </button>
-        </div>
-      </nav>
+        </nav>
+      </div>
     </header>
   );
 }

@@ -1,22 +1,17 @@
 import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { 
-  AlertCircle, 
   CheckCircle, 
   Clock, 
-  ShieldAlert, 
-  Cpu, 
   Database, 
   Server, 
-  Play, 
   Check, 
   Copy, 
   FileText, 
   Sparkles,
   Zap,
-  ArrowRight,
   RefreshCw,
-  Terminal
+  Cpu
 } from 'lucide-react';
 
 export function IncidentTriage({ 
@@ -42,7 +37,7 @@ export function IncidentTriage({
   const handleCopyCommand = (cmd, idx) => {
     navigator.clipboard.writeText(cmd);
     setCopiedCommand(idx);
-    setTimeout(() => setCopiedCommand(null), 2000);
+    setTimeout(() => setCopiedCommand(null), 1800);
   };
 
   const handleExecuteRemediation = () => {
@@ -51,26 +46,24 @@ export function IncidentTriage({
     setRemediating(true);
     setRemediationStep(1);
 
-    // Multi-step autonomous execution sequence
     setTimeout(() => {
       setRemediationStep(2);
-    }, 1200);
+    }, 1000);
 
     setTimeout(() => {
       setRemediationStep(3);
-    }, 2400);
+    }, 2000);
 
     setTimeout(() => {
       setRemediating(false);
       setRemediationStep(0);
 
-      // Mark incident resolved
       setIncidents(prev => prev.map(inc => {
         if (inc.id === selectedIncident.id) {
           return {
             ...inc,
             status: 'resolved',
-            resolvedTimestamp: 'Just now by Antigravity Agent',
+            resolvedTimestamp: 'Just now by Agent',
             metrics: {
               ...inc.metrics,
               cpuUtilization: "18.4%",
@@ -83,57 +76,56 @@ export function IncidentTriage({
         return inc;
       }));
 
-      // Fire celebratory confetti!
       confetti({
-        particleCount: 120,
-        spread: 70,
+        particleCount: 80,
+        spread: 60,
         origin: { y: 0.6 },
-        colors: ['#FF9900', '#00F0FF', '#10B981', '#A855F7']
+        colors: ['#F59E0B', '#38BDF8', '#10B981']
       });
-    }, 3600);
+    }, 3000);
   };
 
   const getServiceIcon = (service) => {
-    if (service.includes('RDS')) return <Database className="w-4 h-4 text-blue-400" />;
+    if (service.includes('RDS')) return <Database className="w-4 h-4 text-sky-400" />;
     if (service.includes('ECS')) return <Server className="w-4 h-4 text-emerald-400" />;
     if (service.includes('Lambda')) return <Zap className="w-4 h-4 text-amber-400" />;
     return <Cpu className="w-4 h-4 text-purple-400" />;
   };
 
   return (
-    <div className="triage-container">
+    <div className="triage-layout">
       {/* Sidebar: Incident List */}
-      <aside className="incident-sidebar">
-        <div className="sidebar-header">
+      <aside className="triage-sidebar">
+        <div className="sidebar-top">
           <div className="flex-between">
-            <h2 className="section-title">CloudWatch Alarms</h2>
-            <span className="live-counter">
-              {incidents.filter(i => i.status === 'active').length} Active
+            <h3 className="sidebar-heading">CloudWatch Alarms</h3>
+            <span className="badge-count-soft">
+              {incidents.filter(i => i.status === 'active').length} active
             </span>
           </div>
 
-          {/* Filter Pills */}
-          <div className="filter-chips">
+          {/* Clean Segmented Filters */}
+          <div className="filter-pill-group">
             <button 
-              className={`filter-chip ${filter === 'all' ? 'active' : ''}`}
+              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
               onClick={() => setFilter('all')}
             >
               All ({incidents.length})
             </button>
             <button 
-              className={`filter-chip critical ${filter === 'critical' ? 'active' : ''}`}
+              className={`filter-btn ${filter === 'critical' ? 'active' : ''}`}
               onClick={() => setFilter('critical')}
             >
               Critical
             </button>
             <button 
-              className={`filter-chip warning ${filter === 'warning' ? 'active' : ''}`}
+              className={`filter-btn ${filter === 'warning' ? 'active' : ''}`}
               onClick={() => setFilter('warning')}
             >
               Warning
             </button>
             <button 
-              className={`filter-chip resolved ${filter === 'resolved' ? 'active' : ''}`}
+              className={`filter-btn ${filter === 'resolved' ? 'active' : ''}`}
               onClick={() => setFilter('resolved')}
             >
               Resolved
@@ -141,35 +133,35 @@ export function IncidentTriage({
           </div>
         </div>
 
-        {/* Incident List Items */}
-        <div className="incident-list">
+        {/* List of cards */}
+        <div className="sidebar-card-list">
           {filteredIncidents.map(inc => {
             const isSelected = inc.id === selectedIncident?.id;
             return (
               <div 
                 key={inc.id}
-                className={`incident-item ${isSelected ? 'selected' : ''} ${inc.status === 'resolved' ? 'is-resolved' : inc.severity}`}
+                className={`incident-card-item ${isSelected ? 'selected' : ''}`}
                 onClick={() => setSelectedIncidentId(inc.id)}
               >
-                <div className="item-header-row">
-                  <div className="service-badge">
+                <div className="card-top-line">
+                  <div className="service-info">
                     {getServiceIcon(inc.service)}
                     <span>{inc.service}</span>
                   </div>
-                  <span className={`status-pill ${inc.status}`}>
+                  <span className={`pill-status-soft ${inc.status === 'resolved' ? 'resolved' : inc.severity}`}>
                     {inc.status === 'resolved' ? 'Resolved' : inc.severity}
                   </span>
                 </div>
 
-                <h4 className="item-title">{inc.title}</h4>
-                <p className="item-resource font-mono">{inc.resourceId}</p>
+                <h4 className="card-item-title">{inc.title}</h4>
+                <div className="card-resource font-mono">{inc.resourceId}</div>
 
-                <div className="item-footer">
-                  <span className="item-time">
-                    <Clock className="w-3 h-3 inline mr-1" />
+                <div className="card-item-footer">
+                  <span className="card-time">
+                    <Clock className="w-3 h-3 inline mr-1 opacity-70" />
                     {inc.timestamp}
                   </span>
-                  <span className="item-region font-mono">{inc.region}</span>
+                  <span className="card-region font-mono">{inc.region}</span>
                 </div>
               </div>
             );
@@ -177,46 +169,48 @@ export function IncidentTriage({
         </div>
       </aside>
 
-      {/* Main Panel: Selected Incident Investigation & Agent Remediation */}
-      {selectedIncident ? (
-        <main className="incident-main">
-          {/* Top Bar of Main view */}
-          <div className="detail-header-card">
-            <div className="flex-between">
+      {/* Main Investigation Panel */}
+      {selectedIncident && (
+        <main className="triage-main-panel">
+          {/* Incident Header Card */}
+          <div className="detail-card">
+            <div className="flex-between items-start gap-4 flex-wrap">
               <div>
-                <div className="detail-tags">
-                  <span className="id-badge font-mono">{selectedIncident.id}</span>
-                  <span className={`severity-badge ${selectedIncident.severity}`}>
-                    {selectedIncident.status === 'resolved' ? 'REMEDIATED & HEALTHY' : `${selectedIncident.severity.toUpperCase()} ALARM`}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="badge-mono">{selectedIncident.id}</span>
+                  <span className={`pill-status-soft ${selectedIncident.status === 'resolved' ? 'resolved' : selectedIncident.severity}`}>
+                    {selectedIncident.status === 'resolved' ? 'Resolved' : `${selectedIncident.severity} Alarm`}
                   </span>
-                  <span className="region-badge font-mono">{selectedIncident.region}</span>
+                  <span className="text-tertiary text-xs font-mono">{selectedIncident.region}</span>
                 </div>
-                <h2 className="detail-title">{selectedIncident.title}</h2>
-                <p className="detail-resource">Target Resource: <code className="font-mono text-cyan-300">{selectedIncident.resourceId}</code></p>
+                <h2 className="detail-main-title">{selectedIncident.title}</h2>
+                <p className="detail-target-res">
+                  Target Resource: <code className="font-mono text-sky-400">{selectedIncident.resourceId}</code>
+                </p>
               </div>
 
-              {/* Status Action / CTA */}
-              <div className="detail-cta">
+              {/* Action Button */}
+              <div>
                 {selectedIncident.status === 'active' ? (
                   <button 
-                    className="btn-remediate-glow"
+                    className="btn-primary-action"
                     onClick={handleExecuteRemediation}
                     disabled={remediating}
                   >
                     {remediating ? (
                       <>
-                        <RefreshCw className="w-4 h-4 animate-spin text-white" />
-                        <span>Agent Executing Fix ({remediationStep}/3)...</span>
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        <span>Remediating ({remediationStep}/3)...</span>
                       </>
                     ) : (
                       <>
-                        <Zap className="w-4 h-4 text-orange-400 fill-orange-400" />
-                        <span>1-Click Agentic Remediate</span>
+                        <Zap className="w-4 h-4" />
+                        <span>1-Click Remediate</span>
                       </>
                     )}
                   </button>
                 ) : (
-                  <div className="remediated-badge">
+                  <div className="badge-resolved-clean">
                     <CheckCircle className="w-4 h-4 text-emerald-400" />
                     <span>Auto-Remediated by Agent</span>
                   </div>
@@ -224,130 +218,101 @@ export function IncidentTriage({
               </div>
             </div>
 
-            {/* Live Metrics Grid */}
-            <div className="metrics-strip">
-              {Object.entries(selectedIncident.metrics).map(([key, value]) => (
-                <div key={key} className="metric-cell">
-                  <div className="metric-name">{key.replace(/([A-Z])/g, ' $1').toLowerCase()}</div>
-                  <div className={`metric-num ${selectedIncident.status === 'resolved' ? 'healthy' : 'spiking'}`}>
-                    {value}
-                  </div>
+            {/* Metrics Row */}
+            <div className="metrics-clean-grid">
+              {Object.entries(selectedIncident.metrics).map(([k, val]) => (
+                <div key={k} className="metric-box">
+                  <span className="metric-lbl">{k.replace(/([A-Z])/g, ' $1').toLowerCase()}</span>
+                  <span className={`metric-val font-mono ${selectedIncident.status === 'resolved' ? 'healthy' : 'spiking'}`}>
+                    {val}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* AI Root Cause Analysis Section */}
-          <section className="rca-card">
-            <div className="rca-header">
-              <div className="rca-title-wrap">
-                <Sparkles className="w-5 h-5 text-purple-400" />
-                <h3>AWS Bedrock Root Cause Analysis</h3>
+          {/* AI Root Cause Card */}
+          <div className="detail-card soft-purple-border">
+            <div className="flex-between mb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-purple-400" />
+                <h3 className="section-title-sm">Bedrock Root Cause Diagnosis</h3>
               </div>
-              <div className="rca-meta">
-                <span className="model-chip font-mono">{selectedIncident.rootCauseAnalysis.aiModel}</span>
-                <span className="confidence-chip">Confidence: {selectedIncident.rootCauseAnalysis.confidence}</span>
-              </div>
+              <span className="badge-confidence">Confidence: {selectedIncident.rootCauseAnalysis.confidence}</span>
             </div>
 
-            <div className="rca-body">
-              <div className="rca-summary">
-                <strong>Diagnosis:</strong> {selectedIncident.rootCauseAnalysis.summary}
-              </div>
-              <div className="rca-impact">
-                <strong>Blast Radius:</strong> {selectedIncident.rootCauseAnalysis.impact}
-              </div>
-              <div className="rca-action">
-                <strong>Recommended Mitigation:</strong> {selectedIncident.rootCauseAnalysis.recommendedAction}
-              </div>
+            <div className="rca-text-body">
+              <p><strong>Diagnosis:</strong> {selectedIncident.rootCauseAnalysis.summary}</p>
+              <p><strong>Impact:</strong> {selectedIncident.rootCauseAnalysis.impact}</p>
+              <p><strong>Mitigation:</strong> {selectedIncident.rootCauseAnalysis.recommendedAction}</p>
             </div>
-          </section>
+          </div>
 
-          {/* Step-by-Step Remediation Plan */}
-          <section className="remediation-steps-card">
-            <div className="steps-header">
-              <div className="steps-title-wrap">
-                <Terminal className="w-5 h-5 text-cyan-400" />
-                <h3>Agent Autonomous Remediation Plan</h3>
-              </div>
+          {/* Remediation Plan Card */}
+          <div className="detail-card">
+            <div className="flex-between mb-3">
+              <h3 className="section-title-sm">Autonomous Remediation Runbook</h3>
               <button 
-                className="btn-text"
+                className="btn-link-sm"
                 onClick={() => setShowPostMortem(!showPostMortem)}
               >
-                <FileText className="w-4 h-4" />
-                <span>{showPostMortem ? 'Hide Post-Mortem' : 'Generate Post-Mortem Doc'}</span>
+                <FileText className="w-3.5 h-3.5" />
+                <span>{showPostMortem ? 'Hide Post-Mortem' : 'Generate Post-Mortem'}</span>
               </button>
             </div>
 
-            <div className="steps-list">
+            <div className="plan-steps-list">
               {selectedIncident.remediationSteps.map((step, idx) => {
                 const isCurrent = remediating && remediationStep === step.step;
                 const isCompleted = selectedIncident.status === 'resolved' || (remediating && remediationStep > step.step);
 
                 return (
-                  <div 
-                    key={step.step}
-                    className={`step-item ${isCurrent ? 'running' : ''} ${isCompleted ? 'completed' : ''}`}
-                  >
-                    <div className="step-num-bubble">
-                      {isCompleted ? <Check className="w-4 h-4 text-emerald-400" /> : step.step}
+                  <div key={step.step} className={`plan-step-card ${isCurrent ? 'active' : ''} ${isCompleted ? 'done' : ''}`}>
+                    <div className="step-circle">
+                      {isCompleted ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : step.step}
                     </div>
-
-                    <div className="step-content">
-                      <div className="step-top-row">
-                        <h4 className="step-title">{step.title}</h4>
+                    <div className="step-main-content">
+                      <div className="flex-between mb-1">
+                        <span className="step-name">{step.title}</span>
                         <button 
-                          className="btn-copy-code"
+                          className="btn-copy-icon"
                           onClick={() => handleCopyCommand(step.command, idx)}
-                          title="Copy AWS CLI command"
+                          title="Copy command"
                         >
                           {copiedCommand === idx ? (
-                            <span className="text-emerald-400 text-xs">Copied!</span>
+                            <span className="text-emerald-400 text-xs font-mono">Copied</span>
                           ) : (
-                            <Copy className="w-3.5 h-3.5" />
+                            <Copy className="w-3.5 h-3.5 text-slate-400" />
                           )}
                         </button>
                       </div>
-
-                      <div className="command-box">
-                        <pre className="command-pre">
-                          <code>{step.command}</code>
-                        </pre>
-                      </div>
+                      <pre className="step-code font-mono text-xs">
+                        <code>{step.command}</code>
+                      </pre>
                     </div>
                   </div>
                 );
               })}
             </div>
-          </section>
+          </div>
 
-          {/* Optional Post-Mortem Card */}
+          {/* Post-Mortem Drawer */}
           {showPostMortem && (
-            <section className="postmortem-drawer">
-              <div className="drawer-header">
-                <FileText className="w-4 h-4 text-orange-400" />
-                <h4>Automated Incident Post-Mortem ({selectedIncident.id})</h4>
+            <div className="detail-card bg-slate-900 border-amber-900/30 font-mono text-xs">
+              <div className="flex items-center gap-2 mb-2 text-amber-400 font-semibold">
+                <FileText className="w-4 h-4" />
+                <span>POST-MORTEM REPORT — {selectedIncident.id}</span>
               </div>
-              <div className="drawer-content font-mono text-xs">
-                <p># INCIDENT POST-MORTEM — {selectedIncident.id}</p>
-                <p>Date: {new Date().toLocaleDateString()} | Author: Antigravity SRE Agent</p>
-                <p>Status: {selectedIncident.status.toUpperCase()} | Severity: {selectedIncident.severity.toUpperCase()}</p>
-                <br/>
-                <p>## 1. Executive Summary</p>
-                <p>{selectedIncident.rootCauseAnalysis.summary}</p>
-                <br/>
-                <p>## 2. Impact</p>
-                <p>{selectedIncident.rootCauseAnalysis.impact}</p>
-                <br/>
-                <p>## 3. Corrective Actions Executed</p>
-                {selectedIncident.remediationSteps.map(s => (
-                  <p key={s.step}>- Step {s.step}: {s.title}</p>
-                ))}
-              </div>
-            </section>
+              <p className="text-slate-300"># Executive Summary</p>
+              <p className="text-slate-400 mb-2">{selectedIncident.rootCauseAnalysis.summary}</p>
+              <p className="text-slate-300"># Remediation Steps Taken</p>
+              {selectedIncident.remediationSteps.map(s => (
+                <p key={s.step} className="text-slate-400">- Step {s.step}: {s.title}</p>
+              ))}
+            </div>
           )}
         </main>
-      ) : null}
+      )}
     </div>
   );
 }
