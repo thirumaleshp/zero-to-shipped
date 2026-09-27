@@ -10,6 +10,10 @@
 > **Live Public URL (Pass/Fail Ship Gate Qualified):**  
 > 🔗 **[https://main.d30kfy62yrfl8n.amplifyapp.com](https://main.d30kfy62yrfl8n.amplifyapp.com)**
 
+<p align="center">
+  <img src="public/banner.jpg" alt="OpsPulse AI Hero Banner" width="100%" />
+</p>
+
 ---
 
 ## 🎯 Executive Summary
